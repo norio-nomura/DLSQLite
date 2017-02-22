@@ -1,0 +1,27 @@
+language: generic
+matrix:
+  include:
+  - script:
+    - set -o pipefail
+    - xcodebuild -scheme DLSQLite test | xcpretty
+    - xcodebuild -scheme DLSQLite test -destination "name=iPhone 7" | xcpretty
+    - xcodebuild -scheme DLSQLite test -destination "name=Apple TV 1080p" | xcpretty
+    - xcodebuild -scheme DLSQLite build -destination "name=Apple Watch - 38mm" | xcpretty
+    - swift test
+    env: JOB=macOS
+    os: osx
+    osx_image: xcode8.2
+    before_install:
+      - xcrun simctl delete E40727B3-41FB-4D6E-B4CB-BFA87109EB12
+  - script: >
+      docker run -v `pwd`:`pwd` -w `pwd` --rm swift:3.0.2
+      bash -c "apt-get update && apt-get install libsqlite3-dev && swift test"
+    env: JOB=Linux-Swift3.0.2
+    sudo: required
+    services: docker
+  - script: >
+      docker run -v `pwd`:`pwd` -w `pwd` --rm norionomura/sourcekit:3120170211a
+      bash -c "apt-get update && apt-get install libsqlite3-dev && swift test"
+    env: JOB=Linux-Swift3.1
+    sudo: required
+    services: docker
